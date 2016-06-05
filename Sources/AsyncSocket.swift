@@ -28,7 +28,7 @@ public protocol AsyncSocketDelegate {
   func socket(socket:AsyncSocket, didConnectToHost host:String, port:UInt16)
   func socket(socket:AsyncSocket, didReadData:NSData!, withTag tag:Int)
   func socket(socket:AsyncSocket, didWriteDataWithTag tag:Int)
-  func socketDidDisconnect(socket:AsyncSocket, withError error:NSError?)
+  func socketDidDisconnect(socket:AsyncSocket, withError error:NSError!)
 }
 
 public class AsyncSocket {
