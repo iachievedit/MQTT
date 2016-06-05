@@ -290,7 +290,6 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   public func socket(socket: AsyncSocket, didReadData data: NSData!, withTag tag: Int) {
-    print("didRead!")
     let etag: MQTTReadTag = MQTTReadTag(rawValue: tag)!
     var bytes = [UInt8]([0])
     switch etag {
@@ -305,19 +304,10 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     }
   }
   
-  public func socketDidDisconnect(sock: AsyncSocket!, withError err: NSError!) {
+  public func socketDidDisconnect(socket:AsyncSocket, withError err: NSError!) {
     connState = MQTTConnState.DISCONNECTED
     delegate?.mqttDidDisconnect(mqtt:self, withError: err)
   }
-  
-//  func socket(socket:AsyncSocket, didConnectToHost:String, port:UInt16)
-  //func socket(socket:AsyncSocket, didReadData:NSData!, withTag tag:Int) {
-  //  print("didRead")
- // }
-  public func socketDidDisconnect(socket:AsyncSocket, withError error:NSError?) {
-    print("error")
-  }
-
   
   //MQTTReader Delegate
   
