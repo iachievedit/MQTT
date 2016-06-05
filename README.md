@@ -26,8 +26,7 @@ MIT License (see `LICENSE`)
 
 ## Contributors
 
-* [@andypiper](https://github.com/andypiper)
-* [@turtleDeng](https://github.com/turtleDeng)
+This code is based upon the work done by Feng Lee <feng@emqtt.io> and others in the https://github.com/emqtt/CocoaMQTT project.
 
 Twitter
 ======
