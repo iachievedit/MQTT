@@ -23,6 +23,7 @@
 
 import TCP
 import Foundation
+import swiftlog
 
 public protocol AsyncSocketDelegate {
   func socket(socket:AsyncSocket, didConnectToHost host:String, port:UInt16)
@@ -62,8 +63,8 @@ public class AsyncSocket {
           let data = try self.socket?.receive(upTo: Int(length))
           self.delegate?.socket(socket:self, didReadData:data!.toNSData(), withTag:tag)
         } catch {
-          self.delegate?.socketDidDisconnect(socket:self,
-            withError:nil)
+          SLogError("readDataToLength error")
+          self.delegate?.socketDidDisconnect(socket:self, withError:nil)
         }
     }
     thread.start()
@@ -75,6 +76,7 @@ public class AsyncSocket {
         try self.socket?.send(data.toC7Data())
         self.delegate?.socket(socket:self, didWriteDataWithTag:tag)
       } catch {
+        SLogError("writeData error")
         self.delegate?.socketDidDisconnect(socket:self,
           withError:nil)
       }

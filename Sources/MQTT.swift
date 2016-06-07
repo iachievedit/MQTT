@@ -370,24 +370,18 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   func didReceivePubAck(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: PUBACK Received: \(msgid)")
-    #endif
+      SLogVerbose("MQTT: PUBACK Received: \(msgid)")
     messages.removeValue(forKey:msgid)
     delegate?.mqtt(mqtt:self, didPublishAck: msgid)
   }
   
   func didReceivePubRec(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: PUBREC Received: \(msgid)")
-    #endif
+    SLogVerbose("MQTT: PUBREC Received: \(msgid)")
     _puback(type:MQTTFrameType.PUBREL, msgid: msgid)
   }
   
   func didReceivePubRel(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: PUBREL Received: \(msgid)")
-    #endif
+    SLogVerbose("MQTT: PUBREL Received: \(msgid)")
     if let message = messages[msgid] {
       messages.removeValue(forKey:msgid)
       delegate?.mqtt(mqtt:self, didPublishMessage: message, id: msgid)
@@ -396,15 +390,11 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   func didReceivePubComp(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: PUBCOMP Received: \(msgid)")
-    #endif
+    SLogVerbose("MQTT: PUBCOMP Received: \(msgid)")
   }
   
   func didReceiveSubAck(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: SUBACK Received: \(msgid)")
-    #endif
+    SLogVerbose("MQTT: SUBACK Received: \(msgid)")
     if let topic = subscriptions.removeValue(forKey:msgid) {
       delegate?.mqtt(mqtt:self, didSubscribeTopic: topic)
     }
