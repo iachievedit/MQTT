@@ -26,6 +26,7 @@
 //
 
 import Foundation
+import swiftlog
 
 /**
  * MQTT Delegate
@@ -114,6 +115,7 @@ enum MQTTReadTag: Int {
  * Main MQTT Class
  */
 public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate {
+  
   public var host = "localhost"
   
   public var port: UInt16 = 1883
@@ -248,9 +250,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   //AsyncSocket Delegate
   public func socket(socket: AsyncSocket, didConnectToHost host: String, port: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: connected to \(host) : \(port)")
-    #endif
+    SLogVerbose("MQTT: connected to \(host) : \(port)")
     
     /*
      if secureMQTT {
@@ -313,24 +313,21 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   public func didReceiveConnAck(reader: MQTTReader, connack: UInt8) {
     connState = MQTTConnState.CONNECTED
-    #if DEBUG
-      NSLog("MQTT: CONNACK Received: \(connack)")
-    #endif
+    SLogVerbose("MQTT: CONNACK Received: \(connack)")
     
     let ack = MQTTConnAck(rawValue: connack)!
     delegate?.mqtt(mqtt:self, didConnectAck: ack)
     
-    //keep alive
     if ack == MQTTConnAck.ACCEPT && keepAlive > 0 {
-      /*
-       aliveTimer = MSWeakTimer.scheduledTimerWithTimeInterval(
-       NSTimeInterval(keepAlive),
-       target: self,
-       selector: #selector(MQTT._aliveTimerFired),
-       userInfo: nil,
-       repeats: true,
-       dispatchQueue: dispatch_get_main_queue())
-       */
+      aliveTimer = NSTimer.scheduledTimer(NSTimeInterval(keepAlive),
+                                          repeats:true){ timer in
+                                            SLogVerbose("timer fired")
+                                            if self.connState == MQTTConnState.CONNECTED {
+                                              self.ping()
+                                            } else {
+                                              self.aliveTimer?.invalidate()
+                                            }
+      }
     }
   }
   
