@@ -58,14 +58,18 @@ public class AsyncSocket {
   }
   
   func readDataToLength(length:UInt, withTimeout timeout:NSTimeInterval, tag:Int) {
+    SLogVerbose("AysncSocket:  Read up to \(length) bytes with timeout \(timeout)")
     let thread = NSThread(){
       do {
           let data = try self.socket?.receive(upTo: Int(length))
           self.delegate?.socket(socket:self, didReadData:data!.toNSData(), withTag:tag)
-        } catch {
-          SLogError("readDataToLength error")
+      } catch StreamError.closedStream(let data) {
+          SLogError("readDataToLength error:  received data \(data)")
           self.delegate?.socketDidDisconnect(socket:self, withError:nil)
         }
+      catch {
+        
+      }
     }
     thread.start()
   }

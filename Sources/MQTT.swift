@@ -284,9 +284,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
    */
   
   public func socket(socket: AsyncSocket, didWriteDataWithTag tag: Int) {
-    #if DEBUG
-      NSLog("MQTT: Socket write message with tag: \(tag)")
-    #endif
+    SLogVerbose("MQTT: Socket write message with tag: \(tag)")
   }
   
   public func socket(socket: AsyncSocket, didReadData data: NSData!, withTag tag: Int) {
@@ -322,7 +320,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
       SLogVerbose("MQTT: Set keepAlive for \(keepAlive) seconds")
       aliveTimer = NSTimer.scheduledTimer(NSTimeInterval(keepAlive),
                                           repeats:true){ timer in
-                                            SLogVerbose("KeepAlive timer fired")
+                                            print("KeepAlive timer fired")
                                             if self.connState == MQTTConnState.CONNECTED {
                                               self.ping()
                                             } else {
@@ -370,7 +368,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   func didReceivePubAck(reader: MQTTReader, msgid: UInt16) {
-      SLogVerbose("MQTT: PUBACK Received: \(msgid)")
+    SLogVerbose("MQTT: PUBACK Received: \(msgid)")
     messages.removeValue(forKey:msgid)
     delegate?.mqtt(mqtt:self, didPublishAck: msgid)
   }
@@ -474,6 +472,7 @@ public class MQTTReader {
   func start() { readHeader() }
   
   func readHeader() {
+    ENTRY_LOG()
     _reset(); socket.readDataToLength(length:1, withTimeout: -1, tag: MQTTReadTag.TAG_HEADER.rawValue)
   }
   
@@ -486,6 +485,7 @@ public class MQTTReader {
   }
   
   func readLength() {
+    ENTRY_LOG()
     socket.readDataToLength(length:1, withTimeout: NSTimeInterval(timeout), tag: MQTTReadTag.TAG_LENGTH.rawValue)
   }
   
@@ -504,6 +504,7 @@ public class MQTTReader {
   }
   
   func readPayload() {
+    ENTRY_LOG()
     socket.readDataToLength(length:length, withTimeout: NSTimeInterval(timeout), tag: MQTTReadTag.TAG_PAYLOAD.rawValue)
   }
   
