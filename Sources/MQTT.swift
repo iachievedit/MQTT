@@ -327,6 +327,8 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
                                               self.aliveTimer?.invalidate()
                                             }
       }
+      let runLoop = NSRunLoop.currentRunLoop()
+      runLoop.currentRunLoop().addTimer(aliveTimer, forMode:NSDefaultRunLoopMode)
     }
   }
   
