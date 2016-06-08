@@ -320,12 +320,13 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
       SLogVerbose("MQTT: Set keepAlive for \(keepAlive) seconds")
       aliveTimer = NSTimer.scheduledTimer(NSTimeInterval(keepAlive),
                                           repeats:true){ timer in
-                                            print("KeepAlive timer fired")
-                                            if self.connState == MQTTConnState.CONNECTED {
-                                              self.ping()
-                                            } else {
-                                              self.aliveTimer?.invalidate()
-                                            }
+        print("KeepAlive timer fired")
+        fflush(stdout)
+        if self.connState == MQTTConnState.CONNECTED {
+          self.ping()
+        } else {
+          self.aliveTimer?.invalidate()
+        }
       }
       NSRunLoop.currentRunLoop().addTimer(aliveTimer!, forMode:NSDefaultRunLoopMode)
     }
