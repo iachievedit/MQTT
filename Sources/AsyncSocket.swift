@@ -56,6 +56,10 @@ public class AsyncSocket {
                                          withError:nil)
     }
   }
+
+  func disconnect() {
+    try! self.socket?.close()
+  }
   
   func readDataToLength(length:UInt, withTimeout timeout:NSTimeInterval, tag:Int) {
     SLogVerbose("AysncSocket:  Read up to \(length) bytes with timeout \(timeout)")
