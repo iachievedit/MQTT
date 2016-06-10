@@ -58,7 +58,11 @@ public class AsyncSocket {
   }
 
   func disconnect() {
-    try! self.socket?.close()
+    ENTRY_LOG()
+    do {
+      try self.socket?.close()
+    } catch {
+    }
   }
   
   func readDataToLength(length:UInt, withTimeout timeout:NSTimeInterval, tag:Int) {
