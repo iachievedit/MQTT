@@ -45,32 +45,35 @@ public class AsyncSocket {
     socket = try! TCPConnection(host:host,port:Int(port))
   }
 
-  func connect() {
+  func connect() throws {
     do {
       try self.socket?.open()
       self.delegate?.socket(socket:self,
-                           didConnectToHost:self.host,
-                           port:self.port)
+                            didConnectToHost:self.host,
+                            port:self.port)
     } catch {
-      self.delegate?.socketDidDisconnect(socket:self,
-                                         withError:nil)
+      throw NSError(domain:"it.iachieved", code:0, userInfo:nil)
     }
   }
 
   func disconnect() {
-    try! self.socket?.close()
+    ENTRY_LOG()
+    do {
+      try self.socket?.close()
+    } catch {
+    }
   }
   
   func readDataToLength(length:UInt, withTimeout timeout:NSTimeInterval, tag:Int) {
     SLogVerbose("AysncSocket:  Read up to \(length) bytes with timeout \(timeout)")
     let thread = NSThread(){
       do {
-          let data = try self.socket?.receive(upTo: Int(length))
-          self.delegate?.socket(socket:self, didReadData:data!.toNSData(), withTag:tag)
-      } catch StreamError.closedStream(let data) {
-          SLogError("readDataToLength error:  received data \(data)")
-          self.delegate?.socketDidDisconnect(socket:self, withError:nil)
-        }
+        let data = try self.socket?.receive(upTo: Int(length))
+        self.delegate?.socket(socket:self, didReadData:data?.toNSData(), withTag:tag)
+      } catch StreamError.closedStream(_) {
+        SLogError("readDataToLength error:  stream closed")
+        self.delegate?.socketDidDisconnect(socket:self, withError:nil)
+      }
       catch {
         
       }

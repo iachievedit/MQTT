@@ -41,9 +41,13 @@ public class MQTTMessage: NSObject {
 
     //utf8 bytes array to string
     public var string: String? {
-        get {
-            return NSString(bytes: payload, length: payload.count, encoding: NSUTF8StringEncoding) as? String
+      get {
+        if let nsString = NSString(bytes: payload, length: payload.count, encoding: NSUTF8StringEncoding) {
+          return String(nsString)
+        } else {
+          return nil
         }
+      }
     }
 
     var qos: MQTTQOS = .QOS1
