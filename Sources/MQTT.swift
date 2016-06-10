@@ -212,6 +212,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   public func disconnect() {
+    ENTRY_LOG()
     send(frame:MQTTFrame(type: MQTTFrameType.DISCONNECT), tag: -0xE0)
     socket!.disconnect()
   }
