@@ -3,7 +3,6 @@
 //
 // Original source created by Feng Lee<feng@eqmtt.io> on 14/8/3 and
 // Copyright (c) 2015 emqtt.io MIT License.
-//  
 // Copyright (c) 2016 iAchieved.it LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -117,53 +116,36 @@ enum MQTTReadTag: Int {
 public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate {
   
   public var host = "localhost"
-  
   public var port: UInt16 = 1883
-  
   public var clientId: String
-  
   public var username: String?
-  
   public var password: String?
-  
   public var secureMQTT: Bool = false
-  
   public var backgroundOnSocket: Bool = false
-  
   public var cleanSess: Bool = true
   
   //keep alive
-  
   public var keepAlive: UInt16 = 60
-  
   var aliveTimer: NSTimer?
   
   //will message
-  
   public var willMessage: MQTTWill?
   
   //delegate weak??
-  
   public weak var delegate: MQTTDelegate?
   
   //socket and connection
-  
   public var connState = MQTTConnState.INIT
-  
   var socket: AsyncSocket?
-  
   var reader: MQTTReader?
   
   //global message id
-  
   var gmid: UInt16 = 1
   
   //subscribed topics
-  
   var subscriptions = Dictionary<UInt16, String>()
   
   //published messages
-  
   public var messages = Dictionary<UInt16, MQTTMessage>()
   
   public init(clientId: String, host: String = "localhost", port: UInt16 = 1883) {
@@ -172,7 +154,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     self.port = port
   }
   
-  //API Functions
+  //  API Functions
   
   public func connect() -> Bool {
     self.socket = AsyncSocket(host:self.host, port:self.port, delegate:self)
@@ -182,9 +164,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
       connState = MQTTConnState.CONNECTING
       return true
     } catch let error as NSError {
-      #if DEBUG
-        NSLog("MQTT: socket connect error: \(error.description)")
-      #endif
+      SLogVerbose("MQTT: socket connect error: \(error.description)")
       return false
     }
   }
@@ -322,8 +302,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
         SLogVerbose("MQTT:  keepAlive thread started")
         self.aliveTimer = NSTimer.scheduledTimer(NSTimeInterval(self.keepAlive),
                                                  repeats:true){ timer in
-          SLogVerbose("KeepAlive timer fired")
-          fflush(stdout)
+          SLogVerbose("MQTT:  KeepAlive timer fired")
           if self.connState == MQTTConnState.CONNECTED {
             self.ping()
           } else {
@@ -340,18 +319,8 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     }
   }
   
-  func _aliveTimerFired() {
-    if connState == MQTTConnState.CONNECTED {
-      ping()
-    } else {
-      aliveTimer?.invalidate()
-    }
-  }
-  
   func didReceivePublish(reader: MQTTReader, message: MQTTMessage, id: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: PUBLISH Received from \(message.topic)")
-    #endif
+    SLogVerbose("MQTT: PUBLISH Received from \(message.topic)")
     delegate?.mqtt(mqtt:self, didReceiveMessage: message, id: id)
     if message.qos == MQTTQOS.QOS1 {
       _puback(type:MQTTFrameType.PUBACK, msgid: id)
@@ -369,11 +338,9 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     case .PUBCOMP: descr = "PUBCOMP"
     default: assert(false)
     }
-    #if DEBUG
-      if descr != nil {
-        NSLog("MQTT: Send \(descr!), msgid: \(msgid)")
-      }
-    #endif
+    if descr != nil {
+      SLogVerbose("MQTT: Send \(descr!), msgid: \(msgid)")
+    }
     send(frame:MQTTFramePubAck(type: type, msgid: msgid))
   }
   
@@ -409,18 +376,14 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   func didReceiveUnsubAck(reader: MQTTReader, msgid: UInt16) {
-    #if DEBUG
-      NSLog("MQTT: UNSUBACK Received: \(msgid)")
-    #endif
+    SLogVerbose("MQTT: UNSUBACK Received: \(msgid)")
     if let topic = subscriptions.removeValue(forKey:msgid) {
       delegate?.mqtt(mqtt:self, didUnsubscribeTopic: topic)
     }
   }
   
   func didReceivePong(reader: MQTTReader) {
-    #if DEBUG
-      NSLog("MQTT: PONG Received")
-    #endif
+    SLogVerbose("MQTT: PONG Received")
     delegate?.mqttDidReceivePong(mqtt:self)
   }
   
@@ -439,21 +402,13 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
 protocol MQTTReaderDelegate {
   
   func didReceiveConnAck(reader: MQTTReader, connack: UInt8)
-  
   func didReceivePublish(reader: MQTTReader, message: MQTTMessage, id: UInt16)
-  
   func didReceivePubAck(reader: MQTTReader, msgid: UInt16)
-  
   func didReceivePubRec(reader: MQTTReader, msgid: UInt16)
-  
   func didReceivePubRel(reader: MQTTReader, msgid: UInt16)
-  
   func didReceivePubComp(reader: MQTTReader, msgid: UInt16)
-  
   func didReceiveSubAck(reader: MQTTReader, msgid: UInt16)
-  
   func didReceiveUnsubAck(reader: MQTTReader, msgid: UInt16)
-  
   func didReceivePong(reader: MQTTReader)
   
 }
@@ -461,17 +416,11 @@ protocol MQTTReaderDelegate {
 public class MQTTReader {
   
   var socket: AsyncSocket
-  
   var header: UInt8 = 0
-  
   var data: [UInt8] = []
-  
   var length: UInt = 0
-  
   var multiply: Int = 1
-  
   var delegate: MQTTReaderDelegate
-  
   var timeout: Int = 30000
   
   init(socket: AsyncSocket, delegate: MQTTReaderDelegate) {
@@ -487,9 +436,7 @@ public class MQTTReader {
   }
   
   func headerReady(header: UInt8) {
-    #if DEBUG
-      NSLog("MQTTReader: header ready: \(header) ")
-    #endif
+    SLogVerbose("MQTTReader: header ready: \(header) ")
     self.header = header
     readLength()
   }
