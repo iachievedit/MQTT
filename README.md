@@ -16,7 +16,9 @@ This code is currently very much alpha!  A basic CONNECT and PUBLISH does work (
 Build
 =====
 
-Build with `swift build`
+Build with `swift build`.
+
+To see the MQTT library in action try our [example client](https://github.com/iachievedit/MQTTClient).
 
 
 Installation
