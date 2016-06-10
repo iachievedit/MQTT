@@ -309,56 +309,58 @@ class MQTTFrameConnect: MQTTFrame {
 class MQTTFramePublish: MQTTFrame {
 
     var msgid: UInt16?
-
     var topic: String?
-
     var data: [UInt8]?
 
     init(msgid: UInt16, topic: String, payload: [UInt8]) {
-        super.init(type: MQTTFrameType.PUBLISH, payload: payload)
-        self.msgid = msgid
-        self.topic = topic
+      super.init(type: MQTTFrameType.PUBLISH, payload: payload)
+      self.msgid = msgid
+      self.topic = topic
     }
-
+    
     init(header: UInt8, data: [UInt8]) {
-        super.init(header: header)
-        self.data = data
+      super.init(header: header)
+      self.data = data
     }
-
+    
     func unpack() {
-        //topic
-        var msb = data![0], lsb = data![1]
-        let len = UInt16(msb) << 8 + UInt16(lsb)
-        var pos: Int = 2 + Int(len)
-        topic = NSString(bytes: [UInt8](data![2...(pos-1)]), length: Int(len), encoding: NSUTF8StringEncoding) as? String
+      //topic
 
-        //msgid
-        if qos == 0 {
-            msgid = 0
-        } else {
-            msb = data![pos]; lsb = data![pos+1]
-            msgid = UInt16(msb) << 8 + UInt16(lsb)
-            pos += 2
-        }
-        
-        //payload
-        let end = data!.count - 1
-        
-        if (end - pos >= 0) {
-            payload = [UInt8](data![pos...end])
+      var msb = data![0]
+      var lsb = data![1]
+      let len = UInt16(msb) << 8 + UInt16(lsb)
+      var pos: Int = 2 + Int(len)
+
+      let nsTopic = NSString(bytes: [UInt8](data![2...(pos-1)]), length: Int(len), encoding: NSUTF8StringEncoding)
+      topic = String(nsTopic)
+
+      //msgid
+      if qos == 0 {
+        msgid = 0
+      } else {
+        msb = data![pos]; lsb = data![pos+1]
+        msgid = UInt16(msb) << 8 + UInt16(lsb)
+        pos += 2
+      }
+
+      //payload
+      let end = data!.count - 1
+      
+      if (end - pos >= 0) {
+        payload = [UInt8](data![pos...end])
         //receives an empty message
-        } else {
-            payload = []
-        }
+      } else {
+        payload = []
+      }
     }
-
+    
     override func pack() {
-        variableHeader += topic!.bytesWithLength
-        if qos > 0 {
-            variableHeader += msgid!.hlBytes
-        }
+      variableHeader += topic!.bytesWithLength
+      if qos > 0 {
+        variableHeader += msgid!.hlBytes
+      }
     }
-
+    
 }
 
 /**

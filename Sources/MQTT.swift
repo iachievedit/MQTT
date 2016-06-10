@@ -160,11 +160,11 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     self.socket = AsyncSocket(host:self.host, port:self.port, delegate:self)
     reader = MQTTReader(socket: socket!, delegate: self)
     do {
-      socket!.connect()
+      try socket!.connect()
       connState = MQTTConnState.CONNECTING
       return true
-    } catch let error as NSError {
-      SLogVerbose("MQTT: socket connect error: \(error.description)")
+    } catch  {
+      SLogVerbose("MQTT: socket connect error")
       return false
     }
   }
@@ -213,12 +213,12 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   public func disconnect() {
     send(frame:MQTTFrame(type: MQTTFrameType.DISCONNECT), tag: -0xE0)
-    socket!.disconnect()
+    self.socket?.disconnect()
   }
   
   func send(frame: MQTTFrame, tag: Int = 0) {
     let data = frame.data()
-    socket!.writeData(data:NSData(bytes: data, length: data.count), withTimeout: -1, tag: tag)
+    self.socket?.writeData(data:NSData(bytes: data, length: data.count), withTimeout: -1, tag: tag)
   }
   
   func sendConnectFrame() {
@@ -474,6 +474,7 @@ public class MQTTReader {
   func frameReady() {
     //handle frame
     let frameType = MQTTFrameType(rawValue: UInt8(header & 0xF0))!
+
     switch frameType {
     case .CONNACK:
       delegate.didReceiveConnAck(reader:self, connack: data[1])
@@ -504,8 +505,11 @@ public class MQTTReader {
     let frame = MQTTFramePublish(header: header, data: data)
     frame.unpack()
     let msgId = frame.msgid!
+
     let qos = MQTTQOS(rawValue: frame.qos)!
+
     let message = MQTTMessage(topic: frame.topic!, payload: frame.payload, qos: qos, retained: frame.retained, dup: frame.dup)
+
     return (msgId, message)
   }
   
