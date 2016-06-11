@@ -11,6 +11,8 @@ MQTT v3.1.1 client library for Linux written with Swift 3.0
 This code is currently very much alpha!  A basic CONNECT and PUBLISH does work (see `main.swift`) but there is much more to be done.  
 - [x] Basic MQTT connect
 - [x] Basic MQTT publish
+- [ ] Basic MQTT subscribe
+- [x] MQTT keep-alive (ping/pong)
 - [ ] MQTT SSL
 - [ ] Testcases
 
