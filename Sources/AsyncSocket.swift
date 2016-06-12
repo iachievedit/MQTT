@@ -47,7 +47,7 @@ public class AsyncSocket {
 
   func connect() {
     do {
-      try self.socket?.open()
+      try self.socket?.open(timingOut:1000)
       self.delegate?.socket(socket:self,
                            didConnectToHost:self.host,
                            port:self.port)
