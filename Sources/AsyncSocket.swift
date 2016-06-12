@@ -48,13 +48,12 @@ public class AsyncSocket {
   func connect() throws {
     do {
       try self.socket?.open()
+      self.delegate?.socket(socket:self,
+                            didConnectToHost:self.host,
+                            port:self.port)
     } catch {
       throw NSError(domain:"it.iachieved", code:0, userInfo:nil)
     }
-//      return true
-//      self.delegate?.socket(socket:self,
-//                           didConnectToHost:self.host,
-//                           port:self.port)
 //    } catch {
 //      return false
 //      self.delegate?.socketDidDisconnect(socket:self,
