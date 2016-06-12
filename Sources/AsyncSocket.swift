@@ -47,11 +47,13 @@ public class AsyncSocket {
 
   func connect() {
     do {
-      try self.socket?.open(timingOut:1000)
+	    print("sitting here")
+      try self.socket?.open()
       self.delegate?.socket(socket:self,
                            didConnectToHost:self.host,
                            port:self.port)
     } catch {
+	    print("caught here")
       self.delegate?.socketDidDisconnect(socket:self,
                                          withError:nil)
     }
