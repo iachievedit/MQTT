@@ -45,18 +45,21 @@ public class AsyncSocket {
     socket = try! TCPConnection(host:host,port:Int(port))
   }
 
-  func connect() {
+  func connect() throws {
     do {
-	    print("sitting here")
       try self.socket?.open()
-      self.delegate?.socket(socket:self,
-                           didConnectToHost:self.host,
-                           port:self.port)
     } catch {
-	    print("caught here")
-      self.delegate?.socketDidDisconnect(socket:self,
-                                         withError:nil)
+      throw NSError(domain:"it.iachieved", code:0, userInfo:nil)
     }
+//      return true
+//      self.delegate?.socket(socket:self,
+//                           didConnectToHost:self.host,
+//                           port:self.port)
+//    } catch {
+//      return false
+//      self.delegate?.socketDidDisconnect(socket:self,
+             //withError:nil)
+//    }
   }
 
   func disconnect() {
