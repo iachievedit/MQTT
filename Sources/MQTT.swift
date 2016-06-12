@@ -160,7 +160,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     self.socket = AsyncSocket(host:self.host, port:self.port, delegate:self)
     reader = MQTTReader(socket: socket!, delegate: self)
     do {
-      socket!.connect()
+      try socket!.connect()
       connState = MQTTConnState.CONNECTING
       return true
     } catch let error as NSError {
