@@ -164,6 +164,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
       connState = MQTTConnState.CONNECTING
       return true
     } catch let error as NSError {
+      print("you just got thrown")
       SLogVerbose("MQTT: socket connect error: \(error.description)")
       return false
     }
