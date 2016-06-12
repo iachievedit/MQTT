@@ -52,6 +52,7 @@ public class AsyncSocket {
                             didConnectToHost:self.host,
                             port:self.port)
     } catch {
+      print("throw it")
       throw NSError(domain:"it.iachieved", code:0, userInfo:nil)
     }
 //    } catch {
