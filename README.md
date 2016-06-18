@@ -13,6 +13,7 @@ This code remains beta but basic functionality is working.
 - [x] Basic MQTT publish
 - [x] Basic MQTT subscribe
 - [x] MQTT keep-alive (ping/pong)
+- [ ] Last Will and Testament
 - [ ] MQTT SSL
 - [ ] Testcases
 
