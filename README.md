@@ -5,6 +5,8 @@
 MQTT
 =========
 
+*Warning!*  Swift 3.0 is still under active development.  This package is continuously updated to what is in the Swift repositories, not the snapshots.  Until Swift 3.0 stabilizes this repository should be considered EXPERIMENTAL.
+
 MQTT v3.1.1 client library for Linux written with Swift 3.0
 
 ### Features
