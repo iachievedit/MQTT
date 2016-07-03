@@ -126,7 +126,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   //keep alive
   public var keepAlive: UInt16 = 60
-  var aliveTimer: NSTimer?
+  var aliveTimer:Timer?
   
   //will message
   public var willMessage: MQTTWill?
@@ -298,9 +298,9 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     
     if ack == MQTTConnAck.ACCEPT && keepAlive > 0 {
       SLogVerbose("MQTT: Set keepAlive for \(keepAlive) seconds")
-      let keepAliveThread = NSThread(){
+      let keepAliveThread = Thread(){
         SLogVerbose("MQTT:  keepAlive thread started")
-        self.aliveTimer = NSTimer.scheduledTimer(NSTimeInterval(self.keepAlive),
+        self.aliveTimer = Timer.scheduledTimer(withTimeInterval:TimeInterval(self.keepAlive),
                                                  repeats:true){ timer in
           SLogVerbose("MQTT:  KeepAlive timer fired")
           if self.connState == MQTTConnState.CONNECTED {
@@ -310,9 +310,9 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
           }
         }
         SLogVerbose("MQTT:  Adding timer to run loop")
-        NSRunLoop.currentRunLoop().addTimer(self.aliveTimer!,
-                                            forMode:NSDefaultRunLoopMode)
-        NSRunLoop.currentRunLoop().run()
+        RunLoop.current().add(self.aliveTimer!,
+                              forMode:RunLoopMode.defaultRunLoopMode)
+        RunLoop.current().run()
       }
       SLogVerbose("MQTT:  Starting keepAlive thread")
       keepAliveThread.start()
@@ -443,7 +443,7 @@ public class MQTTReader {
   
   func readLength() {
     ENTRY_LOG()
-    socket.readDataToLength(length:1, withTimeout: NSTimeInterval(timeout), tag: MQTTReadTag.TAG_LENGTH.rawValue)
+    socket.readDataToLength(length:1, withTimeout:TimeInterval(timeout), tag: MQTTReadTag.TAG_LENGTH.rawValue)
   }
   
   func lengthReady(byte: UInt8) {
@@ -462,7 +462,7 @@ public class MQTTReader {
   
   func readPayload() {
     ENTRY_LOG()
-    socket.readDataToLength(length:length, withTimeout: NSTimeInterval(timeout), tag: MQTTReadTag.TAG_PAYLOAD.rawValue)
+    socket.readDataToLength(length:length, withTimeout:TimeInterval(timeout), tag: MQTTReadTag.TAG_PAYLOAD.rawValue)
   }
   
   func payloadReady(data: NSData) {

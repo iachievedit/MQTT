@@ -64,9 +64,9 @@ public class AsyncSocket {
     }
   }
   
-  func readDataToLength(length:UInt, withTimeout timeout:NSTimeInterval, tag:Int) {
+  func readDataToLength(length:UInt, withTimeout timeout:TimeInterval, tag:Int) {
     SLogVerbose("AysncSocket:  Read up to \(length) bytes with timeout \(timeout)")
-    let thread = NSThread(){
+    let thread = Thread(){
       do {
         let data = try self.socket?.receive(upTo: Int(length))
         self.delegate?.socket(socket:self, didReadData:data?.toNSData(), withTag:tag)
@@ -81,8 +81,8 @@ public class AsyncSocket {
     thread.start()
   }
   
-  func writeData(data:NSData, withTimeout timeout:NSTimeInterval, tag:Int) {
-    let thread = NSThread(){
+  func writeData(data:NSData, withTimeout timeout:TimeInterval, tag:Int) {
+    let thread = Thread(){
       do {
         try self.socket?.send(data.toC7Data())
         self.delegate?.socket(socket:self, didWriteDataWithTag:tag)

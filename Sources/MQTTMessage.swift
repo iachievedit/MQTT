@@ -42,7 +42,7 @@ public class MQTTMessage: NSObject {
     //utf8 bytes array to string
     public var string: String? {
       get {
-        if let nsString = NSString(bytes: payload, length: payload.count, encoding: NSUTF8StringEncoding) {
+        if let nsString = NSString(bytes: payload, length: payload.count, encoding: String.Encoding.utf8.rawValue) {
           return String(nsString)
         } else {
           return nil

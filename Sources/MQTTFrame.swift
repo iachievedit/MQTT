@@ -331,7 +331,7 @@ class MQTTFramePublish: MQTTFrame {
       let len = UInt16(msb) << 8 + UInt16(lsb)
       var pos: Int = 2 + Int(len)
 
-      if let nsTopic = NSString(bytes: [UInt8](data![2...(pos-1)]), length: Int(len), encoding: NSUTF8StringEncoding) {
+      if let nsTopic = NSString(bytes: [UInt8](data![2...(pos-1)]), length: Int(len), encoding: String.Encoding.utf8.rawValue) {
         topic = String(nsTopic)
       }
       
