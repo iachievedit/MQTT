@@ -40,6 +40,7 @@ In the interim, see companion articles:
 
 * [Writing a Publisher](http://dev.iachieved.it/iachievedit/mqtt-with-swift-on-linux/)
 * [Writing a Subscriber](http://dev.iachieved.it/iachievedit/mqtt-subscriptions-with-swift-on-linux/)
+* [Utilizing a Last Will and Testament](http://dev.iachieved.it/iachievedit/mqtt-last-will-and-testament/)
 
 LICENSE
 =======
