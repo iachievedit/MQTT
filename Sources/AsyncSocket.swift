@@ -22,6 +22,7 @@
 
 
 import TCP
+import TCPSSL
 import Foundation
 import swiftlog
 
@@ -35,14 +36,18 @@ public protocol AsyncSocketDelegate {
 public class AsyncSocket {
   var host:String = ""
   var port:UInt16    = 0
-  var socket:TCPConnection?
+  var socket:Connection?
   var delegate:AsyncSocketDelegate?
   
-  init(host:String, port:UInt16, delegate:AsyncSocketDelegate?) {
+  init(host:String, port:UInt16, delegate:AsyncSocketDelegate?, secure:Bool = false) {
     self.host     = host
     self.port     = port
     self.delegate = delegate
-    socket = try! TCPConnection(host:host,port:Int(port))
+    if secure {
+      socket = try! TCPSSLConnection(host:host, port:Int(port))
+    } else {
+      socket = try! TCPConnection(host:host,port:Int(port))
+    }
   }
 
   func connect() throws {

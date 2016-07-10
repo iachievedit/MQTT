@@ -157,7 +157,7 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   //  API Functions
   
   public func connect() -> Bool {
-    self.socket = AsyncSocket(host:self.host, port:self.port, delegate:self)
+    self.socket = AsyncSocket(host:self.host, port:self.port, delegate:self, secure:secureMQTT)
     reader = MQTTReader(socket: socket!, delegate: self)
     do {
       try socket!.connect()
