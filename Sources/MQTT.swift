@@ -25,7 +25,6 @@
 //
 
 import Foundation
-import swiftlog
 
 /**
  * MQTT Delegate
@@ -164,7 +163,6 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
       connState = MQTTConnState.CONNECTING
       return true
     } catch  {
-      SLogVerbose("MQTT: socket connect error")
       return false
     }
   }
@@ -230,7 +228,6 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   //AsyncSocket Delegate
   public func socket(socket: AsyncSocket, didConnectToHost host: String, port: UInt16) {
-    SLogVerbose("MQTT: connected to \(host) : \(port)")
     
     /*
      if secureMQTT {
@@ -248,7 +245,6 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   /*
    public func socket(sock: AsyncSocket!, didReceiveTrust trust: SecTrust!, completionHandler: ((Bool) -> Void)!) {
    #if DEBUG
-   NSLog("MQTT: didReceiveTrust")
    #endif
    completionHandler(true)
    }
@@ -257,14 +253,12 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   /*
    public func socketDidSecure(sock: AsyncSocket!) {
    #if DEBUG
-   NSLog("MQTT: socketDidSecure")
    #endif
    sendConnectFrame()
    }
    */
   
   public func socket(socket: AsyncSocket, didWriteDataWithTag tag: Int) {
-    SLogVerbose("MQTT: Socket write message with tag: \(tag)")
   }
   
   public func socket(socket: AsyncSocket, didReadData data: NSData!, withTag tag: Int) {
@@ -291,36 +285,29 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   
   public func didReceiveConnAck(reader: MQTTReader, connack: UInt8) {
     connState = MQTTConnState.CONNECTED
-    SLogVerbose("MQTT: CONNACK Received: \(connack)")
     
     let ack = MQTTConnAck(rawValue: connack)!
     delegate?.mqtt(mqtt:self, didConnectAck: ack)
     
     if ack == MQTTConnAck.ACCEPT && keepAlive > 0 {
-      SLogVerbose("MQTT: Set keepAlive for \(keepAlive) seconds")
       let keepAliveThread = Thread(){
-        SLogVerbose("MQTT:  keepAlive thread started")
         self.aliveTimer = Timer.scheduledTimer(withTimeInterval:TimeInterval(self.keepAlive),
                                                  repeats:true){ timer in
-          SLogVerbose("MQTT:  KeepAlive timer fired")
           if self.connState == MQTTConnState.CONNECTED {
             self.ping()
           } else {
             self.aliveTimer?.invalidate()
           }
         }
-        SLogVerbose("MQTT:  Adding timer to run loop")
         RunLoop.current().add(self.aliveTimer!,
                               forMode:RunLoopMode.defaultRunLoopMode)
         RunLoop.current().run()
       }
-      SLogVerbose("MQTT:  Starting keepAlive thread")
       keepAliveThread.start()
     }
   }
   
   func didReceivePublish(reader: MQTTReader, message: MQTTMessage, id: UInt16) {
-    SLogVerbose("MQTT: PUBLISH Received from \(message.topic)")
     delegate?.mqtt(mqtt:self, didReceiveMessage: message, id: id)
     if message.qos == MQTTQOS.QOS1 {
       _puback(type:MQTTFrameType.PUBACK, msgid: id)
@@ -339,24 +326,20 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
     default: assert(false)
     }
     if descr != nil {
-      SLogVerbose("MQTT: Send \(descr!), msgid: \(msgid)")
     }
     send(frame:MQTTFramePubAck(type: type, msgid: msgid))
   }
   
   func didReceivePubAck(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: PUBACK Received: \(msgid)")
     messages.removeValue(forKey:msgid)
     delegate?.mqtt(mqtt:self, didPublishAck: msgid)
   }
   
   func didReceivePubRec(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: PUBREC Received: \(msgid)")
     _puback(type:MQTTFrameType.PUBREL, msgid: msgid)
   }
   
   func didReceivePubRel(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: PUBREL Received: \(msgid)")
     if let message = messages[msgid] {
       messages.removeValue(forKey:msgid)
       delegate?.mqtt(mqtt:self, didPublishMessage: message, id: msgid)
@@ -365,25 +348,21 @@ public class MQTT: NSObject, MQTTClient, MQTTReaderDelegate, AsyncSocketDelegate
   }
   
   func didReceivePubComp(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: PUBCOMP Received: \(msgid)")
   }
   
   func didReceiveSubAck(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: SUBACK Received: \(msgid)")
     if let topic = subscriptions.removeValue(forKey:msgid) {
       delegate?.mqtt(mqtt:self, didSubscribeTopic: topic)
     }
   }
   
   func didReceiveUnsubAck(reader: MQTTReader, msgid: UInt16) {
-    SLogVerbose("MQTT: UNSUBACK Received: \(msgid)")
     if let topic = subscriptions.removeValue(forKey:msgid) {
       delegate?.mqtt(mqtt:self, didUnsubscribeTopic: topic)
     }
   }
   
   func didReceivePong(reader: MQTTReader) {
-    SLogVerbose("MQTT: PONG Received")
     delegate?.mqttDidReceivePong(mqtt:self)
   }
   
@@ -431,18 +410,15 @@ public class MQTTReader {
   func start() { readHeader() }
   
   func readHeader() {
-    ENTRY_LOG()
     _reset(); socket.readDataToLength(length:1, withTimeout: -1, tag: MQTTReadTag.TAG_HEADER.rawValue)
   }
   
   func headerReady(header: UInt8) {
-    SLogVerbose("MQTTReader: header ready: \(header) ")
     self.header = header
     readLength()
   }
   
   func readLength() {
-    ENTRY_LOG()
     socket.readDataToLength(length:1, withTimeout:TimeInterval(timeout), tag: MQTTReadTag.TAG_LENGTH.rawValue)
   }
   
@@ -461,7 +437,6 @@ public class MQTTReader {
   }
   
   func readPayload() {
-    ENTRY_LOG()
     socket.readDataToLength(length:length, withTimeout:TimeInterval(timeout), tag: MQTTReadTag.TAG_PAYLOAD.rawValue)
   }
   

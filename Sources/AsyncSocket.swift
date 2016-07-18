@@ -24,7 +24,6 @@
 import TCP
 import TCPSSL
 import Foundation
-import swiftlog
 
 public protocol AsyncSocketDelegate {
   func socket(socket:AsyncSocket, didConnectToHost host:String, port:UInt16)
@@ -62,7 +61,6 @@ public class AsyncSocket {
   }
 
   func disconnect() {
-    ENTRY_LOG()
     do {
       try self.socket?.close()
     } catch {
@@ -70,13 +68,11 @@ public class AsyncSocket {
   }
   
   func readDataToLength(length:UInt, withTimeout timeout:TimeInterval, tag:Int) {
-    SLogVerbose("AysncSocket:  Read up to \(length) bytes with timeout \(timeout)")
     let thread = Thread(){
       do {
         let data = try self.socket?.receive(upTo: Int(length))
         self.delegate?.socket(socket:self, didReadData:data?.toNSData(), withTag:tag)
       } catch StreamError.closedStream(_) {
-        SLogError("readDataToLength error:  stream closed")
         self.delegate?.socketDidDisconnect(socket:self, withError:nil)
       }
       catch {
@@ -92,7 +88,6 @@ public class AsyncSocket {
         try self.socket?.send(data.toC7Data())
         self.delegate?.socket(socket:self, didWriteDataWithTag:tag)
       } catch {
-        SLogError("writeData error")
         self.delegate?.socketDidDisconnect(socket:self,
           withError:nil)
       }
